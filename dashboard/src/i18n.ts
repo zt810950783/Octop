@@ -2,6 +2,7 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { getApiUrl } from "./api/config";
 import { i18nApi } from "./api/modules/i18n";
+import { appName, brandText, initBranding } from "./branding";
 import {
   resolveInitialLocale,
   syncDocumentLang,
@@ -11,10 +12,21 @@ import {
 export type { UiLocale } from "./utils/localePrefs";
 
 async function loadLocaleBundle(locale: UiLocale) {
-  if (locale === "zh") {
-    return (await import("./locales/zh.json")).default;
-  }
-  return (await import("./locales/en.json")).default;
+  const bundle =
+    locale === "zh"
+      ? (await import("./locales/zh.json")).default
+      : (await import("./locales/en.json")).default;
+  return { ...bundle, skills: brandSkillLabels(bundle.skills) };
+}
+
+// Keep server-owned labels canonical on disk; brand their display in the UI.
+function brandSkillLabels(labels: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(labels).map(([key, value]) => [
+      key,
+      typeof value === "string" ? brandText(value) : value,
+    ]),
+  );
 }
 
 export async function ensureLocaleBundle(locale: UiLocale): Promise<void> {
@@ -59,7 +71,7 @@ async function hydrateSkillLabels(lng: string) {
     i18n.addResourceBundle(
       locale,
       "translation",
-      { skills: labels },
+      { skills: brandSkillLabels(labels) },
       true,
       true,
     );
@@ -83,6 +95,7 @@ let initPromise: Promise<void> | null = null;
 export function initI18n(): Promise<void> {
   if (!initPromise) {
     initPromise = (async () => {
+      await initBranding();
       const initial = resolveInitialLocale();
       const fallback: UiLocale = initial === "zh" ? "en" : "zh";
       const primaryBundle = await loadLocaleBundle(initial);
@@ -97,6 +110,7 @@ export function initI18n(): Promise<void> {
         nonExplicitSupportedLngs: true,
         interpolation: {
           escapeValue: false,
+          defaultVariables: { appName },
         },
       });
 

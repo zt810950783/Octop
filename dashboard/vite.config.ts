@@ -56,8 +56,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   // Empty = same-origin; frontend and backend served together, no hardcoded host.
   const apiBaseUrl = env.BASE_URL ?? "";
-  // Allow overriding the backend port via VITE_API_PORT env variable (default: 8088)
-  const apiPort = process.env.VITE_API_PORT ?? env.VITE_API_PORT ?? "8088";
+  // Allow overriding the backend port via VITE_API_PORT env variable (default: 25777)
+  const apiPort = process.env.VITE_API_PORT ?? env.VITE_API_PORT ?? "25777";
 
   const isProd = mode === "production";
   const analyze = env.ANALYZE === "true";
@@ -183,10 +183,8 @@ export default defineConfig(({ mode }) => {
         // Include the offline fallback in the SW precache.
         includeAssets: [
           "offline.html",
-          "logo_vertical_dark.svg",
-          "logo_vertical_white.svg",
-          "logo_horizontal_dark.png",
-          "logo_horizontal_white.png",
+          "logo.png",
+          "favicon.png",
           "pwa-192.png",
           "pwa-512.png",
           "apple-touch-icon.png",
@@ -317,7 +315,7 @@ export default defineConfig(({ mode }) => {
           target: `http://127.0.0.1:${apiPort}`,
           changeOrigin: true,
           // Preserve the browser-facing origin so OAuth callbacks do not point
-          // at the proxy target (127.0.0.1:8088).
+          // at the proxy target (127.0.0.1:25777).
           xfwd: true,
           // Only proxy API websockets — do not steal Vite's HMR upgrade on `/`.
           ws: true,

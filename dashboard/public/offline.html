@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>Octop — 离线中</title>
+    <title>__OCTOP_APP_NAME__ — 离线中</title>
     <style>
       * {
         margin: 0;
@@ -68,10 +68,25 @@
   </head>
   <body>
     <div class="container">
-      <img src="logo_vertical_white.svg" alt="Octop" class="logo" />
+      <img src="/logo.png" alt="__OCTOP_APP_NAME__" class="logo" />
       <h1>当前处于离线状态</h1>
-      <p>无法连接到 Octop 服务端。<br />请检查网络连接后重试。</p>
+      <p>
+        无法连接到
+        <span id="app-name">__OCTOP_APP_NAME__</span>
+        服务端。<br />请检查网络连接后重试。
+      </p>
       <button onclick="location.reload()">重新连接</button>
     </div>
+    <script>
+      // The precached offline page survives a server-side name change.
+      try {
+        var appName = localStorage.getItem("octop:app-name");
+        if (appName) {
+          document.title = appName + " — 离线中";
+          document.getElementById("app-name").textContent = appName;
+          document.querySelector(".logo").alt = appName;
+        }
+      } catch (e) {}
+    </script>
   </body>
 </html>

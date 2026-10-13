@@ -2,20 +2,24 @@
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 from collections.abc import Sequence
 from dataclasses import dataclass
+from html import escape
 from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse, Response
 from scalar_fastapi import get_scalar_api_reference
 
 from octop.api.middleware.jwt_auth import install as install_jwt_auth
 from octop.api.middleware.setup_lockdown import install as install_setup_lockdown
 from octop.api.openapi_meta import API_DESCRIPTION, OPENAPI_TAGS, configure_openapi
+from octop.config import OctopConfig
 from octop.infra.errors import ErrorCode, OctopError
 from octop.infra.server import OctopServer
 from octop.infra.utils.locale import resolve_request_locale
@@ -57,7 +61,7 @@ def is_dashboard_asset_path(full_path: str) -> bool:
     return full_path.startswith("assets/")
 
 
-def _dashboard_fallback(index_file: Path, full_path: str) -> FileResponse:
+async def _dashboard_fallback(index_file: Path, full_path: str, app_name: str) -> Response:
     """Serve the SPA shell for routes; 404 for a missing hashed asset.
 
     Answering ``/assets/index.<old-hash>.js`` with ``index.html`` makes the
@@ -66,7 +70,22 @@ def _dashboard_fallback(index_file: Path, full_path: str) -> FileResponse:
     """
     if is_dashboard_asset_path(full_path):
         raise HTTPException(status_code=404, detail="Not Found")
-    return _dashboard_response(index_file, "")
+    return await asyncio.get_running_loop().run_in_executor(
+        None, _branded_dashboard_response, index_file, app_name
+    )
+
+
+def _branded_dashboard_response(path: Path, app_name: str) -> Response:
+    """Read in an executor so fresh frontend builds remain visible without blocking asyncio."""
+    content = path.read_text(encoding="utf-8")
+    if path.name == "manifest.json":
+        manifest = json.loads(content)
+        manifest.update(name=app_name, short_name=app_name)
+        return JSONResponse(manifest, headers={"Cache-Control": "no-cache"})
+    return HTMLResponse(
+        content.replace("__OCTOP_APP_NAME__", escape(app_name)),
+        headers={"Cache-Control": "no-cache"},
+    )
 
 
 def _mount_routers(app: FastAPI, mounts: Sequence[_RouterMount]) -> None:
@@ -100,6 +119,7 @@ def _install_exception_handlers(app: FastAPI) -> None:
 
 def build_app(server: OctopServer) -> FastAPI:
     cfg = server.services.config if server.services else getattr(server, "config", None)
+    app_name = cfg.app_name if cfg else OctopConfig().app_name
     enable_dashboard = cfg.enable_dashboard if cfg else True
     enable_api_docs = cfg.enable_api_docs if cfg else False
     enable_mobile = (
@@ -107,9 +127,9 @@ def build_app(server: OctopServer) -> FastAPI:
     )
 
     app = FastAPI(
-        title="Octop API",
+        title=f"{app_name} API",
         version="0.1.0",
-        description=API_DESCRIPTION,
+        description=API_DESCRIPTION.replace("**Octop**", f"**{escape(app_name)}**"),
         openapi_url="/api/openapi.json" if enable_api_docs else None,
         openapi_tags=OPENAPI_TAGS,
     )
@@ -304,7 +324,7 @@ def build_app(server: OctopServer) -> FastAPI:
         async def api_docs() -> HTMLResponse:
             return get_scalar_api_reference(
                 openapi_url=app.openapi_url,
-                title="Octop API",
+                title=f"{app_name} API",
             )
 
     if enable_dashboard:
@@ -313,7 +333,7 @@ def build_app(server: OctopServer) -> FastAPI:
         if index_file.exists():
 
             @app.get("/{full_path:path}", include_in_schema=False)
-            async def spa_fallback(full_path: str) -> FileResponse:
+            async def spa_fallback(full_path: str) -> Response:
                 if full_path.startswith(("api/", "ws/")):
                     raise HTTPException(status_code=404, detail="Not Found")
 
@@ -322,14 +342,21 @@ def build_app(server: OctopServer) -> FastAPI:
                     # Reject absolute paths and parent-dir references before
                     # joining, so user input never drives a path expression.
                     if raw_path.is_absolute() or ".." in raw_path.parts:
-                        return _dashboard_fallback(index_file, full_path)
+                        return await _dashboard_fallback(index_file, full_path, app_name)
                     candidate = (dashboard_dir / Path(*raw_path.parts)).resolve()
                     try:
                         candidate.relative_to(dashboard_dir.resolve())
                     except ValueError:
-                        return _dashboard_fallback(index_file, full_path)
+                        return await _dashboard_fallback(index_file, full_path, app_name)
                     if candidate.is_file():
+                        if (
+                            candidate.name in {"index.html", "offline.html", "manifest.json"}
+                            and candidate.parent == dashboard_dir.resolve()
+                        ):
+                            return await asyncio.get_running_loop().run_in_executor(
+                                None, _branded_dashboard_response, candidate, app_name
+                            )
                         return _dashboard_response(candidate, full_path)
-                return _dashboard_fallback(index_file, full_path)
+                return await _dashboard_fallback(index_file, full_path, app_name)
 
     return app

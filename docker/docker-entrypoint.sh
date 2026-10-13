@@ -9,7 +9,7 @@
 #                               策略则不建管理员，启动后走 Web 设置向导。
 #   OCTOP_ADMIN_USERNAME      — 首次管理员用户名（默认: admin）
 #   OCTOP_ADMIN_DISPLAY_NAME  — 可选显示名
-#   OCTOP_PORT                — 服务端口（默认: 8088）
+#   OCTOP_PORT                — 服务端口（默认: 25777）
 #
 # 首次引导（issue #502）：容器不得因弱默认密码重启循环。未设置或不合格
 # 的 OCTOP_DEFAULT_PASSWORD 不再静默换成随机管理员密码，而是把向导口令
@@ -25,7 +25,7 @@ CREDENTIAL_FILE="${OCTOP_HOME}/credential.txt"
 WIZARD_FILE="${OCTOP_HOME}/octop-login.txt"
 ADMIN_USERNAME="${OCTOP_ADMIN_USERNAME:-admin}"
 ADMIN_DISPLAY_NAME="${OCTOP_ADMIN_DISPLAY_NAME:-Admin}"
-PORT="${OCTOP_PORT:-8088}"
+PORT="${OCTOP_PORT:-25777}"
 
 # 与 src/octop/infra/users/password.py 的 _COMMON_PASSWORDS 保持一致。
 _OCTOP_COMMON_PASSWORDS="password password1 password12 password123 12345678 123456789 qwerty123 admin123 welcome1 letmein1 changeme1 octop123 abc12345 iloveyou1"

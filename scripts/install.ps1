@@ -376,6 +376,6 @@ Write-Host "Then run:"
 Write-Host "  octop init" -ForegroundColor White
 Write-Host "  octop run" -ForegroundColor White
 Write-Host "  octop service start" -ForegroundColor White
-Write-Host "  http://127.0.0.1:8088" -ForegroundColor White
+Write-Host "  http://127.0.0.1:25777" -ForegroundColor White
 
 } @args

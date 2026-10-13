@@ -124,7 +124,8 @@ class CapabilitiesConfig:
 @dataclass(frozen=True)
 class OctopConfig:
     bind_host: str = "127.0.0.1"
-    port: int = 8088
+    port: int = 25777
+    app_name: str = "擎云智驱办公版"
     log_level: str = "info"
     access_token_ttl_seconds: int = 86400
     login_max_attempts: int = 5
@@ -599,6 +600,7 @@ def load_config(path: Path) -> OctopConfig:
     return OctopConfig(
         bind_host=merged["bind_host"],
         port=int(merged["port"]),
+        app_name=str(merged.get("app_name") or "").strip() or file_defaults["app_name"],
         log_level=merged["log_level"],
         access_token_ttl_seconds=int(merged["access_token_ttl_seconds"]),
         login_max_attempts=int(merged.get("login_max_attempts", 5)),

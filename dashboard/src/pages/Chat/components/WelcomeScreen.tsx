@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { appName } from "../../../branding";
 import { useWelcomeQuickCardsLayout } from "../hooks/useWelcomeQuickCardsLayout";
 import WelcomeQuickCards, { WelcomeQuickCardProbe } from "./WelcomeQuickCards";
 import styles from "../index.module.less";
@@ -80,7 +81,7 @@ export default function WelcomeScreen({
               role="button"
               tabIndex={0}
               title={t("chatWelcome.mascotSwitchHint")}
-              aria-label="Octop mascot"
+              aria-label={appName}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();

@@ -26,7 +26,7 @@
 docker compose -f docker/docker-compose.yml up -d --build
 ```
 
-访问 `http://localhost:8088`。设置了合格的 `OCTOP_DEFAULT_PASSWORD`（≥8 位且同时包含字母和数字）时，首次启动会创建管理员，并把凭据写入 `/data/.octop/credential.txt`。未设置，或密码被策略拒绝（过短、缺字母/数字、常见弱密码）时，**不**自动建账号，打开页面走设置向导；向导口令在 `/data/.octop/octop-login.txt`（`credential.txt` 里也有说明）。在向导里自行设置管理员密码。
+访问 `http://localhost:25777`。设置了合格的 `OCTOP_DEFAULT_PASSWORD`（≥8 位且同时包含字母和数字）时，首次启动会创建管理员，并把凭据写入 `/data/.octop/credential.txt`。未设置，或密码被策略拒绝（过短、缺字母/数字、常见弱密码）时，**不**自动建账号，打开页面走设置向导；向导口令在 `/data/.octop/octop-login.txt`（`credential.txt` 里也有说明）。在向导里自行设置管理员密码。
 
 **方式二：构建脚本**
 
@@ -34,7 +34,7 @@ docker compose -f docker/docker-compose.yml up -d --build
 bash docker/docker_build.sh
 docker run -d \
   --name octop \
-  -p 8088:8088 \
+  -p 25777:25777 \
   -v octop-data:/data/.octop \
   -e HOME=/data \
   octop:latest
@@ -57,7 +57,7 @@ bash docker/docker_build.sh
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `HOME` | `/data` | 必须为 `/data`，数据目录映射到 `~/.octop` |
-| `OCTOP_PORT` | `8088` | HTTP 服务端口 |
+| `OCTOP_PORT` | `25777` | HTTP 服务端口 |
 | `OCTOP_DEFAULT_PASSWORD` | _(未设置)_ | 首次管理员密码（≥8 位，字母+数字）。合格则 `octop init` 建账号；未设置或不合格则走 Web 设置向导 |
 | `OCTOP_ADMIN_USERNAME` | `admin` | 首次管理员用户名 |
 | `OCTOP_DATABASE_URL` | — | PostgreSQL DSN（或其他 `OCTOP_DATABASE_*`，见 [configuration.md](../docs/configuration.md)） |
@@ -78,7 +78,7 @@ Compose 可在 `docker/.env` 中配置上述变量。注意：`.env` 只参与 C
 镜像内置 `HEALTHCHECK`，探测 `GET /api/health`：
 
 ```bash
-curl http://localhost:8088/api/health
+curl http://localhost:25777/api/health
 ```
 
 ### 常用运维命令

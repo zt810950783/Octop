@@ -14,7 +14,8 @@ def test_defaults_when_missing(tmp_path: Path):
     cfg_path = tmp_path / "config.json"
     cfg = load_config(cfg_path)
     assert cfg.bind_host == "127.0.0.1"
-    assert cfg.port == 8088
+    assert cfg.port == 25777
+    assert cfg.app_name == "擎云智驱办公版"
     assert cfg.access_token_ttl_seconds == 86400
     assert cfg.enable_dashboard is True
     assert cfg.enable_api_docs is False
@@ -102,6 +103,18 @@ def test_loads_existing(tmp_path: Path):
     assert cfg.log_level == "debug"
     assert cfg.bind_host == "127.0.0.1"  # default fills
     assert cfg.max_upload_mb == 100  # missing key uses default
+
+
+def test_loads_app_name(tmp_path: Path):
+    cfg_path = tmp_path / "config.json"
+    cfg_path.write_text(json.dumps({"app_name": "公司办公助手"}), encoding="utf-8")
+    assert load_config(cfg_path).app_name == "公司办公助手"
+
+
+def test_blank_app_name_uses_default(tmp_path: Path):
+    cfg_path = tmp_path / "config.json"
+    cfg_path.write_text(json.dumps({"app_name": "  "}), encoding="utf-8")
+    assert load_config(cfg_path).app_name == "擎云智驱办公版"
 
 
 def test_loads_max_upload_mb(tmp_path: Path):
@@ -244,7 +257,7 @@ def test_invalid_port_falls_back(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     monkeypatch.setenv("OCTOP_PORT", "not-a-number")
     cfg_path = tmp_path / "config.json"
     cfg = load_config(cfg_path)
-    assert cfg.port == 8088
+    assert cfg.port == 25777
 
 
 def test_invalid_database_driver_raises(tmp_path: Path):

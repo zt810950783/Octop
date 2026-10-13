@@ -163,7 +163,7 @@ echo Then run:
 echo   octop init
 echo   octop run
 echo   octop service start
-echo   http://127.0.0.1:8088
+echo   http://127.0.0.1:25777
 exit /b 0
 
 ::detect_chrome

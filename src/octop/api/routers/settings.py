@@ -24,6 +24,23 @@ from octop.infra.utils.user_downloads import (
 router = APIRouter()
 
 
+class BrandingSettingsResponse(BaseModel):
+    app_name: str = Field(description="Display name from config ``app_name``.")
+
+
+@router.get(
+    "/settings/branding",
+    summary="Public dashboard branding",
+    description="Available before login and initial setup. Returns only the product display name.",
+    response_model=BrandingSettingsResponse,
+)
+async def get_branding_settings(
+    server: Any = Depends(get_server),
+) -> BrandingSettingsResponse:
+    cfg: OctopConfig = server.services.config if server.services else server.config
+    return BrandingSettingsResponse(app_name=cfg.app_name)
+
+
 class TimezoneSettingsResponse(BaseModel):
     timezone: str = Field(description="IANA timezone from config ``default_timezone``.")
 

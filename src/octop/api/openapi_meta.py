@@ -29,7 +29,7 @@ Access tokens use sliding renewal: when less than one-third of
 token in the `X-Octop-Access-Token` header. Clients should replace the stored
 token when present.
 
-Public endpoints (no token): `/api/docs`, `/api/openapi.json`, `/api/health`,
+Public endpoints (no token): `/api/docs`, `/api/openapi.json`, `/api/health`, `/api/settings/branding`,
 `/api/setup/*`, `/api/auth/login`, `/api/auth/captcha`, `/api/auth/oidc/status`, `/api/auth/oidc/start`,
 `/api/auth/oidc/callback`, `/api/auth/oidc/exchange`, `/api/auth/oauth/status`,
 `/api/auth/oauth/start`, `/api/auth/oauth/callback`, `/api/auth/oauth/exchange`,

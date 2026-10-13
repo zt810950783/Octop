@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from octop.config import load_config
+from octop.config import OctopConfig, load_config
 from octop.infra.errors import corrupt_config_error
 from octop.infra.utils import posix_compat as pwd
 from octop.infra.utils.json_file import (
@@ -262,7 +262,8 @@ def resolve_bind_options(home: Path | None = None) -> tuple[str, int]:
     if config_path.is_file():
         config = load_config(config_path)
         return config.bind_host, config.port
-    return "127.0.0.1", 8088
+    defaults = OctopConfig()
+    return defaults.bind_host, defaults.port
 
 
 def build_runtime(

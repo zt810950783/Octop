@@ -26,7 +26,7 @@ From the repository root:
 docker compose -f docker/docker-compose.yml up -d --build
 ```
 
-Open `http://localhost:8088`. A valid `OCTOP_DEFAULT_PASSWORD` (≥8 characters with letters and digits) creates the admin on first boot and writes credentials to `/data/.octop/credential.txt`. If the variable is unset, or the password fails policy (too short, missing letters/digits, or a common password), **no** admin is created — open the dashboard and complete the setup wizard. The wizard unlock password is in `/data/.octop/octop-login.txt` (also noted in `credential.txt`).
+Open `http://localhost:25777`. A valid `OCTOP_DEFAULT_PASSWORD` (≥8 characters with letters and digits) creates the admin on first boot and writes credentials to `/data/.octop/credential.txt`. If the variable is unset, or the password fails policy (too short, missing letters/digits, or a common password), **no** admin is created — open the dashboard and complete the setup wizard. The wizard unlock password is in `/data/.octop/octop-login.txt` (also noted in `credential.txt`).
 
 **Option 2: Build script**
 
@@ -34,7 +34,7 @@ Open `http://localhost:8088`. A valid `OCTOP_DEFAULT_PASSWORD` (≥8 characters 
 bash docker/docker_build.sh
 docker run -d \
   --name octop \
-  -p 8088:8088 \
+  -p 25777:25777 \
   -v octop-data:/data/.octop \
   -e HOME=/data \
   octop:latest
@@ -57,7 +57,7 @@ bash docker/docker_build.sh
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `HOME` | `/data` | Must be `/data` so `~/.octop` maps to the data volume |
-| `OCTOP_PORT` | `8088` | HTTP listen port |
+| `OCTOP_PORT` | `25777` | HTTP listen port |
 | `OCTOP_DEFAULT_PASSWORD` | _(unset)_ | First-run admin password (≥8 chars, letters + digits). Valid → `octop init`; unset or rejected → web setup wizard |
 | `OCTOP_ADMIN_USERNAME` | `admin` | Initial admin username |
 | `OCTOP_DATABASE_URL` | — | PostgreSQL DSN (or other `OCTOP_DATABASE_*`; see [configuration.md](../docs/configuration.md)) |
@@ -78,7 +78,7 @@ For Compose, put these in `docker/.env`. Values only reach the container if list
 The image probes `GET /api/health`:
 
 ```bash
-curl http://localhost:8088/api/health
+curl http://localhost:25777/api/health
 ```
 
 ### Operations

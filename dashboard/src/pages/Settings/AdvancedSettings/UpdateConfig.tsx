@@ -50,7 +50,7 @@ docker compose -f docker/docker-compose.yml up -d --build
 bash docker/docker_build.sh
 docker run -d \\
   --name octop \\
-  -p 8088:8088 \\
+  -p 25777:25777 \\
   -v octop-data:/data/.octop \\
   -e HOME=/data \\
   octop:latest`,

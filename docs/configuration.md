@@ -61,7 +61,8 @@ on each start. Schema (`OctopConfig` in `octop/config.py`):
 ```json
 {
   "bind_host": "127.0.0.1",
-  "port": 8088,
+  "port": 25777,
+  "app_name": "擎云智驱办公版",
   "log_level": "info",
   "access_token_ttl_seconds": 86400,
   "login_max_attempts": 5,
@@ -113,6 +114,16 @@ Notes:
 - `require_setup_password=true` adds the wizard password gate to the
   first-run setup flow; set `false` for unattended bootstraps via
   `OCTOP_ADMIN_USERNAME` / `OCTOP_ADMIN_PASSWORD`.
+- `app_name` is the dashboard display name (default: `擎云智驱办公版`).
+  Edit this one key in `~/.octop/config.json` (or `$OCTOP_HOME/config.json`)
+  and restart the service; no frontend rebuild is needed. It controls the
+  logo wordmark, both UI languages, browser title, PWA name, and offline page.
+  CLI commands, API paths, package names, and environment variables retain
+  their upstream names. Previously installed PWA shortcuts may need to be
+  reinstalled for the operating system to refresh their name and icon.
+- The default listen port is `25777`. An existing `port` entry, `OCTOP_PORT`,
+  or explicit `--port` still takes precedence; update that override when
+  migrating an existing installation from `8088`.
 - `max_upload_mb` is the process-wide ceiling for dashboard chat
   attachments, IM inbound files, and knowledge-base documents (default
   100). Existing `config.json` files that omit the key pick up the
@@ -134,7 +145,7 @@ Each variable, when set, takes precedence over the matching key in
 |----------|------|---------|--------|
 | `OCTOP_HOME` | path | `~/.octop` | Install root (DB, secrets, workspaces, plugins) |
 | `OCTOP_BIND_HOST` | string | `127.0.0.1` | Listen address (use `0.0.0.0` for LAN access) |
-| `OCTOP_PORT` | int | `8088` | Listen port (`0`–`65535`; `0` asks the OS for a free port) |
+| `OCTOP_PORT` | int | `25777` | Listen port (`0`–`65535`; `0` asks the OS for a free port) |
 | `OCTOP_LOG_LEVEL` | string | `info` | One of `debug` `info` `warning` `error` |
 | `OCTOP_LOG_RETENTION_DAYS` | int | `14` | Keep rotated `octop.log.YYYY-MM-DD` files for this many days |
 | `OCTOP_LOG_MAX_BYTES` | int | `104857600` (100 MiB) | Roll the active log when it exceeds this size (in addition to daily rotation) |

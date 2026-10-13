@@ -1,4 +1,5 @@
 import type { TFunction } from "i18next";
+import { brandText } from "../branding";
 
 export interface ParsedApiError {
   code?: string;
@@ -65,7 +66,7 @@ export function isNotFoundApiError(error: unknown): boolean {
  * Turn a failed API call into user-facing text.
  * When `t` is provided, known `apiErrors.<CODE>` keys take precedence.
  */
-export function apiErrorMessage(
+function resolveApiErrorMessage(
   error: unknown,
   fallback: string,
   t?: TFunction,
@@ -106,6 +107,14 @@ export function apiErrorMessage(
     return error;
   }
   return fallback;
+}
+
+export function apiErrorMessage(
+  error: unknown,
+  fallback: string,
+  t?: TFunction,
+): string {
+  return brandText(resolveApiErrorMessage(error, fallback, t));
 }
 
 /** Resolve a desktop/browser WebSocket error payload for display. */

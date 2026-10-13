@@ -34,7 +34,7 @@ def test_internal_mcp_url_uses_http_when_tls_is_off() -> None:
         instance_id="qcc-test",
         internal_token="tok",
     )
-    assert url.startswith("http://127.0.0.1:8088/api/internal/mcp/qcc/qcc-test?")
+    assert url.startswith("http://127.0.0.1:25777/api/internal/mcp/qcc/qcc-test?")
     spec = _qcc_spec(OctopConfig())
     assert str(spec["url"]).startswith("http://")
     assert "httpx_client_factory" not in spec

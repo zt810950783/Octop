@@ -21,15 +21,18 @@ import { cleanup } from "@testing-library/react";
 // console noise per test file).
 vi.mock("react-i18next", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-i18next")>();
+  const { appName } = await import("../branding");
 
   type TOptions = Record<string, unknown> & { defaultValue?: string };
 
   // Interpolate ``{{name}}`` placeholders like real i18next so tests can
   // assert user-visible copy such as "已捕获 42 条对话记忆".
   const interpolate = (template: string, options?: TOptions): string => {
-    if (!options) return template;
+    const variables = { appName, ...options };
     return template.replace(/\{\{(\w+)\}\}/g, (match, name: string) =>
-      name in options ? String(options[name]) : match,
+      name in variables
+        ? String(variables[name as keyof typeof variables])
+        : match,
     );
   };
 
